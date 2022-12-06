@@ -46,7 +46,7 @@ def insert_rental():
 	inR = sqlite3.connect('carrental.db') 
 	inR_cur = inR.cursor()
 
-	inR_cur.execute(""" SELECT CustID, V.VehicleID, 
+	inR_cur.execute(""" SELECT V.VehicleID
 				 		FROM VEHICLE AS V, RENTAL AS R
 						WHERE V.VehicleID==? AND V.Type==? AND R.ReturnDate<? AND V.VehicleID!=R.VehicleID 
 				   		""",
@@ -231,7 +231,7 @@ vehicle_rental_CustID_label.grid(row=10, column=0)
 vehicle_rental_type_label = Label(root, text= 'Vehicle Rental Type: ')
 vehicle_rental_type_label.grid(row=11, column=0)
 
-vehicle_rental_category_label = Label(root, text= 'Vehicle Rental Description: ')
+vehicle_rental_category_label = Label(root, text= 'Vehicle Rental ID: ')
 vehicle_rental_category_label.grid(row=12, column=0)
 
 vehicle_rental_period_label = Label(root, text= 'Vehicle Rental Period: ')
