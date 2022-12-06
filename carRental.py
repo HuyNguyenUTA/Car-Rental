@@ -21,7 +21,7 @@ def insert_customer():
 	inC = sqlite3.connect('carrental.db') 
 	inC_cur = inC.cursor()
 
-	inC_cur.execute("INSERT INTO CUSTOMER(CustID, Name, Phone) VALUES(?,?)",customer_id.get(),customer_name.get(),customer_phone.get())
+	inC_cur.execute("INSERT INTO CUSTOMER(CustID, Name, Phone) VALUES(?,?,?)",customer_id.get(),customer_name.get(),customer_phone.get())
 
 	inC.commit()
 	inC.close()
@@ -77,6 +77,28 @@ def return_rental():
 	reR = sqlite3.connect('carrental.db')
 	reR_cur = reR.cursor()
 	
+	reR_cur.execute("DROP VIEW vRentalInfo")
+
+	#TODO: FInd total amount, fix task 1 part 2
+	#reR_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve, RATE AS Ra WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
+	
+	reR_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
+ 
+	#liV_cur.execute("SELECT * FROM vRentalInfo")
+	#reR_cur.execute("UPDATE vRentalInfo SET PaymentDate='12/6/2022' WHERE CustID=? AND VIN=? AND ReturnDate=?", (vehicle_rental_return_CustID.get(), vehicle_rental_return_description.get(), vehicle_rental_return_date.get(),))
+	
+ 	#reR_cur.execute("SELECT OrderAmount FROM vRentalInfo WHERE CustomerID=? AND VIN=? AND ReturnDate=?", (vehicle_rental_return_CustID.get(), vehicle_rental_return_description.get(), vehicle_rental_return_date.get(),))
+	reR_cur.execute("SELECT OrderAmount FROM vRentalInfo WHERE CustomerID=? AND ReturnDate=? AND VIN=?", (vehicle_rental_return_CustID.get(), vehicle_rental_return_date.get(), vehicle_rental_return_description.get()))
+	
+	
+	output_records = reR_cur.fetchall()
+	print_record = ''
+	for output_record in output_records:
+		print_record += str(str(output_record[0])+"\n")
+	#TODO: fix the formatting
+	reR_label = Label(root, text = print_record)
+	reR_label.grid(row=19, column=0, columnspan=2)
+ 
 	reR.commit()
 	reR.close()
 
@@ -88,7 +110,8 @@ def list_view_customer_rental():
 	liV_cur.execute("DROP VIEW vRentalInfo")
 
 	#TODO: FInd total amount, fix task 1 part 2
-	liV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve, RATE AS Ra WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
+	#liV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve, RATE AS Ra WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
+	liV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
 	
 	#liV_cur.execute("SELECT * FROM vRentalInfo")
 	liV_cur.execute("SELECT SUM(OrderAmount) FROM vRentalInfo WHERE (CustomerID=? OR CustomerName=?) AND PaymentDate='NULL'", (customer_id.get(), customer_name.get(),))
@@ -99,7 +122,7 @@ def list_view_customer_rental():
 		print_record += str(str(output_record[0])+"\n")
 	#TODO: fix the formatting
 	liV_label = Label(root, text = print_record)
-	liV_label.grid(row=15, column=5, columnspan=2)
+	liV_label.grid(row=21, column=5, columnspan=2)
 
 	liV.commit()
 	liV.close()
@@ -111,8 +134,9 @@ def list_view_vehicle():
 	#PLEASE NOTE THAT PYTHON AND SQL DOES NOTHING WITH dropping the views on exit, so we have to manually do this ourselves
 	liVV_cur.execute("DROP VIEW vRentalInfo")
 
+	#liVV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
 	liVV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
-	
+ 
 	liVV_cur.execute("SELECT VIN, Vehicle FROM vRentalInfo WHERE (Vehicle=? OR VIN=?)",(vehicle_description.get(),vehicle_vehicleID.get(),))
 
 	output_records = liVV_cur.fetchall()
@@ -121,7 +145,7 @@ def list_view_vehicle():
 		print_record += str(str(output_record[0])+" "+str(output_record[1])+"\n")
 	#TODO: fix the formatting
 	liVV_label = Label(root, text = print_record)
-	liVV_label.grid(row=15, column=0, columnspan=2)
+	liVV_label.grid(row=21, column=0, columnspan=2)
 
 	liVV.commit()
 	liVV.close()
@@ -175,11 +199,11 @@ vehicle_rental_period.grid(row=13, column=1)
 vehicle_rental_return_CustID = Entry(root, width =30)
 vehicle_rental_return_CustID.grid(row=15, column=1)
 
-vehicle_rental_return_date = Entry(root, width =30)
-vehicle_rental_return_date.grid(row=16, column=1)
+vehicle_rental_return_description = Entry(root, width =30)
+vehicle_rental_return_description.grid(row=16, column=1)
 
-vehicle_rental_return_CustID = Entry(root, width =30)
-vehicle_rental_return_CustID.grid(row=17, column=1)
+vehicle_rental_return_date = Entry(root, width =30)
+vehicle_rental_return_date.grid(row=17, column=1)
 
 #TODO: labels
 #customer labels
@@ -225,11 +249,11 @@ vehicle_rental_period_label.grid(row=13, column=0)
 vehicle_rental_return_CustID_label = Label(root, text= 'Vehicle Return Rental CustID: ')
 vehicle_rental_CustID_label.grid(row=15, column=0)
 
-vehicle_rental_return_date_label = Label(root, text= 'Vehicle Rental Type: ')
-vehicle_rental_return_date_label.grid(row=16, column=0)
-
 vehicle_rental_return_description_label = Label(root, text= 'Vehicle Rental Description: ')
-vehicle_rental_return_description_label.grid(row=17, column=0)
+vehicle_rental_return_description_label.grid(row=16, column=0)
+
+vehicle_rental_return_date_label = Label(root, text= 'Vehicle Rental Date: ')
+vehicle_rental_return_date_label.grid(row=17, column=0)
 
 
 
@@ -246,10 +270,10 @@ insert_rental_btn.grid(row=14, column=0, columnspan=2, pady=10, padx=10, ipadx=1
 
 
 list_view_btn = Button(root, text = 'List Customer Balance', command = list_view_customer_rental)
-list_view_btn.grid(row=19, column=5, columnspan=2, pady=10, padx=10, ipadx=100)
+list_view_btn.grid(row=20, column=5, columnspan=2, pady=10, padx=10, ipadx=100)
 
 list_view_vehicle_btn = Button(root, text = 'List Vehicle', command = list_view_vehicle)
-list_view_vehicle_btn.grid(row=19, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+list_view_vehicle_btn.grid(row=20, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 rental_return_btn = Button(root, text= 'Add rental return', command= return_rental)
 rental_return_btn.grid(row=18, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
