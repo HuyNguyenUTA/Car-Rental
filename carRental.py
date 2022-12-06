@@ -171,6 +171,15 @@ vehicle_rental_description.grid(row=12, column=1)
 vehicle_rental_period = Entry(root, width = 30)
 vehicle_rental_period.grid(row=13, column=1)
 
+#Rental Return Vehicle text boxes
+vehicle_rental_return_CustID = Entry(root, width =30)
+vehicle_rental_return_CustID.grid(row=15, column=1)
+
+vehicle_rental_return_date = Entry(root, width =30)
+vehicle_rental_return_date.grid(row=16, column=1)
+
+vehicle_rental_return_CustID = Entry(root, width =30)
+vehicle_rental_return_CustID.grid(row=17, column=1)
 
 #TODO: labels
 #customer labels
@@ -212,6 +221,15 @@ vehicle_rental_category_label.grid(row=12, column=0)
 vehicle_rental_period_label = Label(root, text= 'Vehicle Rental Period: ')
 vehicle_rental_period_label.grid(row=13, column=0)
 
+#rental return
+vehicle_rental_return_CustID_label = Label(root, text= 'Vehicle Return Rental CustID: ')
+vehicle_rental_CustID_label.grid(row=15, column=0)
+
+vehicle_rental_return_date_label = Label(root, text= 'Vehicle Rental Type: ')
+vehicle_rental_return_date_label.grid(row=16, column=0)
+
+vehicle_rental_return_description_label = Label(root, text= 'Vehicle Rental Description: ')
+vehicle_rental_return_description_label.grid(row=17, column=0)
 
 
 
@@ -223,14 +241,17 @@ insert_customer_btn.grid(row=3, column=0, columnspan=2, pady=10, padx=10, ipadx=
 insert_vehicle_btn = Button(root, text = 'Add Vehicle', command = insert_vehicle)
 insert_vehicle_btn.grid(row=9, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
-insert_rental_btn = Button(root, text= 'Add new rental', comman= insert_rental)
+insert_rental_btn = Button(root, text= 'Add new rental', command= insert_rental)
 insert_rental_btn.grid(row=14, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
 list_view_btn = Button(root, text = 'List Customer Balance', command = list_view_customer_rental)
-list_view_btn.grid(row=15, column=5, columnspan=2, pady=10, padx=10, ipadx=100)
+list_view_btn.grid(row=19, column=5, columnspan=2, pady=10, padx=10, ipadx=100)
 
 list_view_vehicle_btn = Button(root, text = 'List Vehicle', command = list_view_vehicle)
-list_view_vehicle_btn.grid(row=15, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+list_view_vehicle_btn.grid(row=19, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+rental_return_btn = Button(root, text= 'Add rental return', command= return_rental)
+rental_return_btn.grid(row=18, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 root.mainloop()
