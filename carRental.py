@@ -51,14 +51,14 @@ def insert_rental():
 	inR = sqlite3.connect('carrental.db') 
 	inR_cur = inR.cursor()
 
-	inR_cur.execute(""" SELECT V.VehicleID
+	inR_cur.execute(""" SELECT CustID, V.VehicleID, 
 				 		FROM VEHICLE AS V, RENTAL AS R
-						WHERE V.VehicleID==? AND V.Type==? AND R.ReturnDate<? AND V.VehicleID!=R.VehicleID 
+						WHERE V.VehicleID=? AND V.Type=? AND R.ReturnDate<? AND V.VehicleID<>R.VehicleID 
 				   		""",
 						(vehicle_rental_description.get(), vehicle_rental_type.get(), vehicle_rental_period.get())
 					)
 	result = inR_cur.fetchone()
- 
+
 	if result:
 		print("Available")
 		inR_cur.execute('INSERT INTO RENTAL VALUES(:CustID, :VehicleID, :StartDate, :OrderDate, :RentalType, :Qty, :ReturnDate, :TotalAmount, :PaymentDate)',
