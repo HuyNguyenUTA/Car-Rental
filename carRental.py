@@ -21,7 +21,12 @@ def insert_customer():
 	inC = sqlite3.connect('carrental.db') 
 	inC_cur = inC.cursor()
 
-	inC_cur.execute("INSERT INTO CUSTOMER(CustID, Name, Phone) VALUES(?,?,?)",customer_id.get(),customer_name.get(),customer_phone.get())
+	inC_cur.execute("INSERT INTO CUSTOMER VALUES(:CustID, :Name, :Phone)", 
+		{
+			'CustID': customer_id.get(),
+			'Name': customer_name.get(),
+			'Phone': customer_phone.get()
+		})
 
 	inC.commit()
 	inC.close()
@@ -131,7 +136,7 @@ def list_view_vehicle():
 
 	#liVV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
 	liVV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
- 
+	
 	liVV_cur.execute("SELECT VIN, Vehicle FROM vRentalInfo WHERE (Vehicle=? OR VIN=?)",(vehicle_description.get(),vehicle_vehicleID.get(),))
 
 	output_records = liVV_cur.fetchall()
