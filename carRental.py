@@ -22,6 +22,7 @@ def insert_customer():
 
 	inC_cur.execute("INSERT INTO CUSTOMER VALUES(:Name, :Phone)", 
 		{
+			'CustID': customer_id.get(),
 			'Name': customer_name.get(),
 			'Phone': customer_phone.get()
 		})
@@ -59,7 +60,7 @@ def input_query():
 	inV.commit()
 	inV.close()
 
-def list_view():
+def list_view_customer_rental():
 	liV = sqlite3.connect('carrental.db')
 	liV_cur = liV.cursor()
 
@@ -67,22 +68,43 @@ def list_view():
 	liV_cur.execute("DROP VIEW vRentalInfo")
 
 	#TODO: FInd total amount, fix task 1 part 2
-	liV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
+	liV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve, RATE AS Ra WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
 	
-	liV_cur.execute("SELECT * FROM vRentalInfo")
+	#liV_cur.execute("SELECT * FROM vRentalInfo")
+	liV_cur.execute("SELECT SUM(OrderAmount) FROM vRentalInfo WHERE (CustomerID=? OR CustomerName=?) AND PaymentDate='NULL'", (customer_id.get(), customer_name.get(),))
 	
 	output_records = liV_cur.fetchall()
 	print_record = ''
 	for output_record in output_records:
-		print_record += str(output_record[0]+ " " + output_record[1]+" "+output_record[0]+ " " + output_record[1]+"\n")
+		print_record += str(str(output_record[0])+"\n")
 	#TODO: fix the formatting
 	liV_label = Label(root, text = print_record)
-	liV_label.grid(row=11, column=0, columnspan=2)
+	liV_label.grid(row=12, column=0, columnspan=2)
 
 	liV.commit()
 	liV.close()
 
+def list_view_vehicle():
+	liVV = sqlite3.connect('carrental.db')
+	liVV_cur = liVV.cursor()
 
+	#PLEASE NOTE THAT PYTHON AND SQL DOES NOTHING WITH dropping the views on exit, so we have to manually do this ourselves
+	liVV_cur.execute("DROP VIEW vRentalInfo")
+
+	liVV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
+	
+	liVV_cur.execute("SELECT VIN, Vehicle FROM vRentalInfo WHERE (Vehicle=? OR VIN=?)",(vehicle_description.get(),vehicle_vehicleID.get(),))
+
+	output_records = liVV_cur.fetchall()
+	print_record = ''
+	for output_record in output_records:
+		print_record += str(str(output_record[0])+" "+str(output_record[1])+"\n")
+	#TODO: fix the formatting
+	liVV_label = Label(root, text = print_record)
+	liVV_label.grid(row=13, column=0, columnspan=2)
+
+	liVV.commit()
+	liVV.close()
 
 
 
@@ -95,6 +117,9 @@ customer_name.grid(row=0, column=1, padx=20)
 #note that padx is only needed once
 customer_phone = Entry(root, width = 30)
 customer_phone.grid(row=1, column=1)
+
+customer_id = Entry(root, width = 30)
+customer_id.grid(row=2, column=1)
 
 #row 3 is skipped for beauty reasons
 #Vehicle text boxes
@@ -122,6 +147,9 @@ customer_name_label.grid(row=0, column=0)
 customer_phone_label = Label(root, text= 'Customer Phone: ')
 customer_phone_label.grid(row=1, column=0)
 
+customer_id_label = Label(root, text= 'Customer ID: ')
+customer_id_label.grid(row=2, column=0)
+
 #vehicle labels
 vehicle_vehicleID_label = Label(root, text= 'Vehicle ID: ')
 vehicle_vehicleID_label.grid(row=4, column=0)
@@ -145,12 +173,15 @@ vehicle_category_label.grid(row=8, column=0)
 
 #TODO: submit button and their locations
 insert_customer_btn = Button(root, text = 'Add Customer', command = insert_customer)
-insert_customer_btn.grid(row=2, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+insert_customer_btn.grid(row=3, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 insert_vehicle_btn = Button(root, text = 'Add Vehicle', command = insert_vehicle)
 insert_vehicle_btn.grid(row=9, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
-list_view_btn = Button(root, text = 'List Database', command = list_view)
+list_view_btn = Button(root, text = 'List Customer Balance', command = list_view_customer_rental)
 list_view_btn.grid(row=10, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+list_view_vehicle_btn = Button(root, text = 'List Vehicle', command = list_view_vehicle)
+list_view_vehicle_btn.grid(row=11, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 root.mainloop()
