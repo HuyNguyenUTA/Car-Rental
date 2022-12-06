@@ -63,18 +63,19 @@ def list_view():
 	liV = sqlite3.connect('carrental.db')
 	liV_cur = liV.cursor()
 
-	#PLEASE NOTE THAT PYTHON AND SQL DOES NOTHING WITH 
+	#PLEASE NOTE THAT PYTHON AND SQL DOES NOTHING WITH dropping the views on exit, so we have to manually do this ourselves
 	liV_cur.execute("DROP VIEW vRentalInfo")
 
-	liV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, SUM(Re.TotalAmount) FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
+	#TODO: FInd total amount, fix task 1 part 2
+	liV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
 	
 	liV_cur.execute("SELECT * FROM vRentalInfo")
 	
 	output_records = liV_cur.fetchall()
 	print_record = ''
 	for output_record in output_records:
-		print_record += str(output_record[0]+ " " + output_record[1]+"\n")
-
+		print_record += str(output_record[0]+ " " + output_record[1]+" "+output_record[0]+ " " + output_record[1]+"\n")
+	#TODO: fix the formatting
 	liV_label = Label(root, text = print_record)
 	liV_label.grid(row=11, column=0, columnspan=2)
 
@@ -149,7 +150,7 @@ insert_customer_btn.grid(row=2, column=0, columnspan=2, pady=10, padx=10, ipadx=
 insert_vehicle_btn = Button(root, text = 'Add Vehicle', command = insert_vehicle)
 insert_vehicle_btn.grid(row=9, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
-list_view_btn = Button(root, text = 'Add Vehicle', command = list_view)
+list_view_btn = Button(root, text = 'List Database', command = list_view)
 list_view_btn.grid(row=10, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 root.mainloop()
