@@ -76,10 +76,7 @@ def insert_rental():
 def return_rental():
 	reR = sqlite3.connect('carrental.db')
 	reR_cur = reR.cursor()
-	
-	reR_cur.execute("DROP VIEW vRentalInfo")
 
-	#TODO: FInd total amount, fix task 1 part 2
 	#reR_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve, RATE AS Ra WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
 	
 	reR_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
@@ -95,9 +92,11 @@ def return_rental():
 	print_record = ''
 	for output_record in output_records:
 		print_record += str(str(output_record[0])+"\n")
-	#TODO: fix the formatting
 	reR_label = Label(root, text = print_record)
 	reR_label.grid(row=19, column=0, columnspan=2)
+
+	
+	reR_cur.execute("DROP VIEW vRentalInfo")
  
 	reR.commit()
 	reR.close()
@@ -106,10 +105,6 @@ def list_view_customer_rental():
 	liV = sqlite3.connect('carrental.db')
 	liV_cur = liV.cursor()
 
-	#PLEASE NOTE THAT PYTHON AND SQL DOES NOTHING WITH dropping the views on exit, so we have to manually do this ourselves
-	liV_cur.execute("DROP VIEW vRentalInfo")
-
-	#TODO: FInd total amount, fix task 1 part 2
 	#liV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve, RATE AS Ra WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
 	liV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
 	
@@ -120,9 +115,12 @@ def list_view_customer_rental():
 	print_record = ''
 	for output_record in output_records:
 		print_record += str(str(output_record[0])+"\n")
-	#TODO: fix the formatting
 	liV_label = Label(root, text = print_record)
 	liV_label.grid(row=21, column=5, columnspan=2)
+
+	
+	#PLEASE NOTE THAT PYTHON AND SQL DOES NOTHING WITH dropping the views on exit, so we have to manually do this ourselves
+	liV_cur.execute("DROP VIEW vRentalInfo")
 
 	liV.commit()
 	liV.close()
@@ -130,9 +128,6 @@ def list_view_customer_rental():
 def list_view_vehicle():
 	liVV = sqlite3.connect('carrental.db')
 	liVV_cur = liVV.cursor()
-
-	#PLEASE NOTE THAT PYTHON AND SQL DOES NOTHING WITH dropping the views on exit, so we have to manually do this ourselves
-	liVV_cur.execute("DROP VIEW vRentalInfo")
 
 	#liVV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
 	liVV_cur.execute("CREATE VIEW vRentalInfo AS SELECT Re.OrderDate, Re.StartDate, Re.ReturnDate, Re.Qty * 7 as TotalDays, Ve.VehicleID as VIN, Ve.Description as Vehicle, Ve.Type, Ve.Category, Cu.CustID as CustomerID, Cu.Name as CustomerName, Re.TotalAmount as OrderAmount, Re.PaymentDate FROM RENTAL AS Re, CUSTOMER AS Cu, VEHICLE AS Ve WHERE Re.CustID=Cu.CustID AND Re.VehicleID=Ve.VehicleID ORDER BY Re.StartDate")
@@ -143,16 +138,14 @@ def list_view_vehicle():
 	print_record = ''
 	for output_record in output_records:
 		print_record += str(str(output_record[0])+" "+str(output_record[1])+"\n")
-	#TODO: fix the formatting
 	liVV_label = Label(root, text = print_record)
 	liVV_label.grid(row=21, column=0, columnspan=2)
 
+	#PLEASE NOTE THAT PYTHON AND SQL DOES NOTHING WITH dropping the views on exit, so we have to manually do this ourselves
+	liVV_cur.execute("DROP VIEW vRentalInfo")
+
 	liVV.commit()
 	liVV.close()
-
-
-
-#TODO: define all GUI components (using a grid)
 
 #define all textboxes
 #Customer text boxes
@@ -205,7 +198,6 @@ vehicle_rental_return_description.grid(row=16, column=1)
 vehicle_rental_return_date = Entry(root, width =30)
 vehicle_rental_return_date.grid(row=17, column=1)
 
-#TODO: labels
 #customer labels
 customer_name_label = Label(root, text= 'Customer Name: ')
 customer_name_label.grid(row=0, column=0)
@@ -255,10 +247,7 @@ vehicle_rental_return_description_label.grid(row=16, column=0)
 vehicle_rental_return_date_label = Label(root, text= 'Vehicle Rental Date: ')
 vehicle_rental_return_date_label.grid(row=17, column=0)
 
-
-
-
-#TODO: submit button and their locations
+#buttons and their locations
 insert_customer_btn = Button(root, text = 'Add Customer', command = insert_customer)
 insert_customer_btn.grid(row=3, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
