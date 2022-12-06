@@ -1,5 +1,6 @@
 
 from tkinter import *
+from datetime import date
 import sqlite3
 
 #create tkinter window
@@ -20,12 +21,7 @@ def insert_customer():
 	inC = sqlite3.connect('carrental.db') 
 	inC_cur = inC.cursor()
 
-	inC_cur.execute("INSERT INTO CUSTOMER VALUES(:Name, :Phone)", 
-		{
-			'CustID': customer_id.get(),
-			'Name': customer_name.get(),
-			'Phone': customer_phone.get()
-		})
+	inC_cur.execute("INSERT INTO CUSTOMER(Name, Phone) VALUES(?,?)",customer_name.get(),customer_phone.get())
 
 	inC.commit()
 	inC.close()
@@ -38,27 +34,51 @@ def insert_vehicle():
 		{
 			'VehicleID': vehicle_vehicleID.get(),
 			'Description': vehicle_description.get(),
-            'Year': vehicle_year.get(),
+			'Year': vehicle_year.get(),
 			'Type': vehicle_type.get(),
-            'Category': vehicle_category.get()
+			'Category': vehicle_category.get()
 		})
 
 	inV.commit()
 	inV.close()
 
 def insert_rental():
-	inV = sqlite3.connect('carrental.db')
-	inV_cur = inC.cursor()
-    #TODO: process for inserting some stuff into the DB
-	inV.commit()
-	inV.close()
+	inR = sqlite3.connect('carrental.db') 
+	inR_cur = inR.cursor()
 
-def input_query():
-	inV = sqlite3.connect('carrental.db')
-	inV_cur = inC.cursor()
-    #TODO: process for inserting some stuff into the DB
-	inV.commit()
-	inV.close()
+	inR_cur.execute(""" SELECT CustID, V.VehicleID, 
+				 		FROM VEHICLE AS V, RENTAL AS R
+						WHERE V.VehicleID==? AND V.Type==? AND R.ReturnDate<? AND V.VehicleID!=R.VehicleID 
+				   		""",
+						(vehicle_rental_description.get(), vehicle_rental_type.get(), vehicle_rental_period.get())
+					)
+	result = inR_cur.fetchone()
+ 
+	if result:
+		print("Available")
+		inR_cur.execute('INSERT INTO RENTAL VALUES(:CustID, :VehicleID, :StartDate, :OrderDate, :RentalType, :Qty, :ReturnDate, :TotalAmount, :PaymentDate)',
+        	{
+				'CustID': "None",
+				'VehicleID': ''.join(result),
+				'StartDate': "None",
+				'OrderDate': date.today(),
+				'RentalType': "None",
+				'Qty': vehicle_rental_type.get(),
+				'ReturnDate': "None",
+				'TotalAmount': "None",
+				'PaymentDate': "None"
+			})
+	else:
+		print("Not available")
+	inR.commit()
+	inR.close()
+ 
+def return_rental():
+	reR = sqlite3.connect('carrental.db')
+	reR_cur = reR.cursor()
+	
+	reR.commit()
+	reR.close()
 
 def list_view_customer_rental():
 	liV = sqlite3.connect('carrental.db')
@@ -79,7 +99,7 @@ def list_view_customer_rental():
 		print_record += str(str(output_record[0])+"\n")
 	#TODO: fix the formatting
 	liV_label = Label(root, text = print_record)
-	liV_label.grid(row=12, column=0, columnspan=2)
+	liV_label.grid(row=15, column=5, columnspan=2)
 
 	liV.commit()
 	liV.close()
@@ -101,7 +121,7 @@ def list_view_vehicle():
 		print_record += str(str(output_record[0])+" "+str(output_record[1])+"\n")
 	#TODO: fix the formatting
 	liVV_label = Label(root, text = print_record)
-	liVV_label.grid(row=13, column=0, columnspan=2)
+	liVV_label.grid(row=15, column=0, columnspan=2)
 
 	liVV.commit()
 	liVV.close()
@@ -118,8 +138,8 @@ customer_name.grid(row=0, column=1, padx=20)
 customer_phone = Entry(root, width = 30)
 customer_phone.grid(row=1, column=1)
 
-customer_id = Entry(root, width = 30)
-customer_id.grid(row=2, column=1)
+# customer_id = Entry(root, width = 30)
+# customer_id.grid(row=2, column=1)
 
 #row 3 is skipped for beauty reasons
 #Vehicle text boxes
@@ -138,6 +158,19 @@ vehicle_type.grid(row=7, column=1)
 vehicle_category = Entry(root, width = 30)
 vehicle_category.grid(row=8, column=1)
 
+#Vehicle rental text boxes
+vehicle_rental_CustID = Entry(root, width = 30)
+vehicle_rental_CustID.grid(row=10, column=1)
+
+vehicle_rental_type = Entry(root, width = 30)
+vehicle_rental_type.grid(row=11, column=1)
+
+vehicle_rental_description = Entry(root, width = 30)
+vehicle_rental_description.grid(row=12, column=1)
+
+vehicle_rental_period = Entry(root, width = 30)
+vehicle_rental_period.grid(row=13, column=1)
+
 
 #TODO: labels
 #customer labels
@@ -147,8 +180,8 @@ customer_name_label.grid(row=0, column=0)
 customer_phone_label = Label(root, text= 'Customer Phone: ')
 customer_phone_label.grid(row=1, column=0)
 
-customer_id_label = Label(root, text= 'Customer ID: ')
-customer_id_label.grid(row=2, column=0)
+# customer_id_label = Label(root, text= 'Customer ID: ')
+# customer_id_label.grid(row=2, column=0)
 
 #vehicle labels
 vehicle_vehicleID_label = Label(root, text= 'Vehicle ID: ')
@@ -166,6 +199,18 @@ vehicle_type_label.grid(row=7, column=0)
 vehicle_category_label = Label(root, text= 'Vehichle Category: ')
 vehicle_category_label.grid(row=8, column=0)
 
+#new rental label
+vehicle_rental_CustID_label = Label(root, text= 'Vehicle Rental CustID: ')
+vehicle_rental_CustID_label.grid(row=10, column=0)
+
+vehicle_rental_type_label = Label(root, text= 'Vehicle Rental Type: ')
+vehicle_rental_type_label.grid(row=11, column=0)
+
+vehicle_rental_category_label = Label(root, text= 'Vehicle Rental Description: ')
+vehicle_rental_category_label.grid(row=12, column=0)
+
+vehicle_rental_period_label = Label(root, text= 'Vehicle Rental Period: ')
+vehicle_rental_period_label.grid(row=13, column=0)
 
 
 
@@ -178,10 +223,14 @@ insert_customer_btn.grid(row=3, column=0, columnspan=2, pady=10, padx=10, ipadx=
 insert_vehicle_btn = Button(root, text = 'Add Vehicle', command = insert_vehicle)
 insert_vehicle_btn.grid(row=9, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
+insert_rental_btn = Button(root, text= 'Add new rental', comman= insert_rental)
+insert_rental_btn.grid(row=14, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+
 list_view_btn = Button(root, text = 'List Customer Balance', command = list_view_customer_rental)
-list_view_btn.grid(row=10, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+list_view_btn.grid(row=15, column=5, columnspan=2, pady=10, padx=10, ipadx=100)
 
 list_view_vehicle_btn = Button(root, text = 'List Vehicle', command = list_view_vehicle)
-list_view_vehicle_btn.grid(row=11, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+list_view_vehicle_btn.grid(row=15, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 root.mainloop()
