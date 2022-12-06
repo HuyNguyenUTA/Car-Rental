@@ -21,7 +21,7 @@ def insert_customer():
 	inC = sqlite3.connect('carrental.db') 
 	inC_cur = inC.cursor()
 
-	inC_cur.execute("INSERT INTO CUSTOMER(Name, Phone) VALUES(?,?)",customer_name.get(),customer_phone.get())
+	inC_cur.execute("INSERT INTO CUSTOMER(CustID, Name, Phone) VALUES(?,?)",customer_id.get(),customer_name.get(),customer_phone.get())
 
 	inC.commit()
 	inC.close()
@@ -138,8 +138,8 @@ customer_name.grid(row=0, column=1, padx=20)
 customer_phone = Entry(root, width = 30)
 customer_phone.grid(row=1, column=1)
 
-# customer_id = Entry(root, width = 30)
-# customer_id.grid(row=2, column=1)
+customer_id = Entry(root, width = 30)
+customer_id.grid(row=2, column=1)
 
 #row 3 is skipped for beauty reasons
 #Vehicle text boxes
@@ -180,8 +180,8 @@ customer_name_label.grid(row=0, column=0)
 customer_phone_label = Label(root, text= 'Customer Phone: ')
 customer_phone_label.grid(row=1, column=0)
 
-# customer_id_label = Label(root, text= 'Customer ID: ')
-# customer_id_label.grid(row=2, column=0)
+customer_id_label = Label(root, text= 'Customer ID: ')
+customer_id_label.grid(row=2, column=0)
 
 #vehicle labels
 vehicle_vehicleID_label = Label(root, text= 'Vehicle ID: ')
